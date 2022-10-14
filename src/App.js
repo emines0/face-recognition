@@ -20,28 +20,41 @@ class App extends Component {
     this.state = {
       input: '',
       imageUrl: '',
+      box: {},
     }
   }
 
+  calculateFaceLocation = (data) => {
+    const  clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box
+    const image = document.getElementById('inputImage');
+    const width = Number(image.width);
+    const height = Number(image.height);
+
+    return {
+      leftCol: clarifaiFace.left_col * width, //left_col is percentage of width. When i multiply it with current width of image i get where should be left column in the image
+      topRow: clarifaiFace.top_row * height,
+      rightCol: width - (clarifaiFace.right_col * width), //right_col is total %tage minus width starting from left side 
+      bottomRow: height - (clarifaiFace.bottom_row * height)
+    }
+  }
+
+  displayFaceBox = (box) => {
+    this.setState({box: box})
+  }
+
   onInputChange = (event) => {
-    console.log(event.target.value);
+    this.setState({input: event.target.value})
   }
 
   onButtonSubmit = () => {
-    console.log('click');
+    this.setState({imageUrl: this.state.input})
+    this.setState({box: {} })
     app.models
        .predict(
           Clarifai.FACE_DETECT_MODEL,
-          "https://samples.clarifai.com/face-det.jpg")
-          .then(
-            function(response) {
-              console.log(response);
-            },
-            function(err) {
-              console.log(err);
-            }
-          );
-
+          this.state.input)
+          .then(response => this.displayFaceBox(this.calculateFaceLocation(response)))
+          .catch(err => console.log(err))
   }
 
   render() {
@@ -55,7 +68,7 @@ class App extends Component {
           onInputChange={this.onInputChange}
           onButtonSubmit={this.onButtonSubmit}
         />
-        <FaceRecognition />
+        <FaceRecognition box={this.state.box} imageUrl={this.state.imageUrl}/>
       </div>
     );
   }
