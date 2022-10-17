@@ -5,7 +5,7 @@ const ImageLingkForm = ({onInputChange, onButtonSubmit}) => {
     return (
         <div>
             <p className="f3">
-                {'This Magic Brain will detect faces in your pictures. Git it a try.'}
+                {'This Magic Brain will detect faces in your pictures. Lets try.'}
             </p>
                 <div className="center pt3">
                     <div className="form center pa4 br3 shadow-5">
